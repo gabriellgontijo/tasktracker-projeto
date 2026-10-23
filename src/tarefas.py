@@ -1,12 +1,13 @@
 """
-Tarefas do TaskTracker: cadastro (com as validações) e listagem.
+Tarefas do TaskTracker: cadastro (com as validações), listagem, conclusão e remoção.
 
 Segue a receita lógica e as regras planejadas na Fase 1:
 - o título é obrigatório (vazio ou só espaços é recusado);
 - a prioridade aceita apenas Alta, Média (ou Media) e Baixa;
 - a data limite usa o formato DD/MM/AAAA e não pode ser anterior a hoje;
 - toda tarefa nasce com o status "Pendente";
-- a listagem mostra primeiro Alta, depois Média, depois Baixa, com os totais.
+- a listagem mostra primeiro Alta, depois Média, depois Baixa, com os totais;
+- só é possível concluir ou remover uma tarefa que exista na lista.
 """
 
 from datetime import date, datetime
@@ -119,3 +120,57 @@ def visualizar_tarefas():
             concluidas += 1
 
     print(f"\nTotal: {len(lista_tarefas)} tarefa(s) | Pendentes: {pendentes} | Concluídas: {concluidas}\n")
+
+
+# ---------------------------------------------------------------------------
+# Conclusão e remoção
+# ---------------------------------------------------------------------------
+
+def buscar_tarefa(identificacao):
+    """Procura a tarefa pelo número (#) ou pelo título. Devolve None se não achar."""
+    if identificacao.isdigit():
+        for tarefa in lista_tarefas:
+            if tarefa["id"] == int(identificacao):
+                return tarefa
+    for tarefa in lista_tarefas:
+        if tarefa["titulo"].lower() == identificacao.lower():
+            return tarefa
+    return None
+
+
+def concluir_tarefa():
+    """Marca uma tarefa existente como Concluída."""
+    print("\n--- Concluir Tarefa ---")
+
+    if len(lista_tarefas) == 0:
+        print("Não existem tarefas cadastradas no momento.\n")
+        return
+
+    identificacao = input("Número ou título da tarefa: ").strip()
+    tarefa = buscar_tarefa(identificacao)
+
+    if tarefa is None:
+        print("Erro: tarefa não encontrada.\n")
+    elif tarefa["status"] == "Concluída":
+        print(f"A tarefa #{tarefa['id']} já estava concluída.\n")
+    else:
+        tarefa["status"] = "Concluída"
+        print(f"Tarefa #{tarefa['id']} '{tarefa['titulo']}' marcada como concluída!\n")
+
+
+def remover_tarefa():
+    """Remove da lista uma tarefa existente."""
+    print("\n--- Remover Tarefa ---")
+
+    if len(lista_tarefas) == 0:
+        print("Não existem tarefas cadastradas no momento.\n")
+        return
+
+    identificacao = input("Número ou título da tarefa: ").strip()
+    tarefa = buscar_tarefa(identificacao)
+
+    if tarefa is None:
+        print("Erro: tarefa não encontrada.\n")
+    else:
+        lista_tarefas.remove(tarefa)
+        print(f"Tarefa #{tarefa['id']} '{tarefa['titulo']}' removida.\n")

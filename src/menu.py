@@ -7,7 +7,9 @@ def exibir_menu():
     print("========================================")
     print("1. Cadastrar nova tarefa")
     print("2. Visualizar tarefas cadastradas")
-    print("3. Sair da aplicação")
+    print("3. Concluir tarefa")
+    print("4. Remover tarefa")
+    print("5. Sair da aplicação")
     print("========================================")
 
 
