@@ -1,15 +1,62 @@
 """
-Tarefas do TaskTracker: cadastro e listagem.
+Tarefas do TaskTracker: cadastro (com as validações) e listagem.
 
-Versão inicial: cadastro e listagem básicos, ainda sem validar os dados digitados.
-As regras de validação planejadas na Fase 1 entram no próximo commit.
+Segue a receita lógica e as regras planejadas na Fase 1:
+- o título é obrigatório (vazio ou só espaços é recusado);
+- a prioridade aceita apenas Alta, Média (ou Media) e Baixa;
+- a data limite usa o formato DD/MM/AAAA e não pode ser anterior a hoje;
+- toda tarefa nasce com o status "Pendente".
 """
+
+from datetime import date, datetime
 
 # Lista com todas as tarefas cadastradas. Cada tarefa é um dicionário.
 lista_tarefas = []
 
+# Prioridades aceitas, na ordem em que aparecem na listagem.
+PRIORIDADES_VALIDAS = ["Alta", "Média", "Baixa"]
+
 # Número que identifica a próxima tarefa cadastrada (1, 2, 3...).
 proximo_id = 1
+
+
+# ---------------------------------------------------------------------------
+# Validação das entradas
+# ---------------------------------------------------------------------------
+
+def ler_titulo():
+    """Pede o título até o usuário digitar algo que não seja vazio."""
+    while True:
+        titulo = input("Título da tarefa: ").strip()
+        if titulo != "":
+            return titulo
+        print("Erro: o título não pode ficar vazio. Digite novamente.")
+
+
+def ler_prioridade():
+    """Pede a prioridade até o usuário digitar Alta, Média (ou Media) ou Baixa."""
+    while True:
+        prioridade = input("Prioridade (Alta, Média ou Baixa): ").strip().capitalize()
+        if prioridade == "Media":
+            prioridade = "Média"
+        if prioridade in PRIORIDADES_VALIDAS:
+            return prioridade
+        print("Erro: prioridade inválida. Digite Alta, Média ou Baixa.")
+
+
+def ler_data_limite():
+    """Pede a data limite (DD/MM/AAAA) e não aceita datas anteriores a hoje."""
+    while True:
+        texto = input("Data limite (DD/MM/AAAA): ").strip()
+        try:
+            data = datetime.strptime(texto, "%d/%m/%Y").date()
+        except ValueError:
+            print("Erro: data inválida. Use o formato DD/MM/AAAA (exemplo: 31/12/2026).")
+            continue
+        if data < date.today():
+            print("Erro: a data limite não pode ser anterior à data de hoje.")
+            continue
+        return data.strftime("%d/%m/%Y")
 
 
 # ---------------------------------------------------------------------------
@@ -17,14 +64,14 @@ proximo_id = 1
 # ---------------------------------------------------------------------------
 
 def cadastrar_tarefa():
-    """Cadastra uma nova tarefa (ainda sem validar os dados digitados)."""
+    """Cadastra uma nova tarefa seguindo o passo a passo da Fase 1."""
     global proximo_id
     print("\n--- Cadastro de Nova Tarefa ---")
 
-    titulo = input("Título da tarefa: ").strip()
+    titulo = ler_titulo()
     descricao = input("Descrição da tarefa (opcional): ").strip()
-    prioridade = input("Prioridade (Alta, Média ou Baixa): ").strip()
-    data_limite = input("Data limite (DD/MM/AAAA): ").strip()
+    prioridade = ler_prioridade()
+    data_limite = ler_data_limite()
 
     tarefa = {
         "id": proximo_id,
