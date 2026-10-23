@@ -7,7 +7,15 @@ Projeto do **Bootcamp II**, construído em três fases a partir do planejamento 
 ## Como executar com Docker
 
 **Pré-requisito:** Docker instalado — Docker Desktop no Windows ou no macOS, Docker Engine no Linux.
-Abra o terminal na pasta do projeto e use os comandos abaixo.
+
+Baixe o projeto e entre na pasta dele:
+
+```bash
+git clone https://github.com/gabriellgontijo/tasktracker-projeto.git
+cd tasktracker-projeto
+```
+
+Depois, use os comandos abaixo.
 
 **Como construir a imagem:**
 
