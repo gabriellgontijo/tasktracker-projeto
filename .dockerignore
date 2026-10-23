@@ -1,0 +1,7 @@
+# Itens que não precisam ser enviados para o build da imagem
+.git
+docs
+**/__pycache__
+**/*.pyc
+.venv
+venv
