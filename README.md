@@ -1,8 +1,63 @@
 # TaskTracker
 
-Aplicação de linha de comando (CLI) em Python para cadastrar, organizar e acompanhar tarefas do dia a dia.
-Projeto do **Bootcamp II**, desenvolvido de forma cumulativa a partir do planejamento lógico da Fase 1
+Aplicação de linha de comando (CLI) em Python para cadastrar, organizar e acompanhar tarefas, empacotada em um container Docker.
+Projeto do **Bootcamp II**, construído em três fases a partir do planejamento lógico da Fase 1
 (disponível em [`docs/planejamento_logico.pdf`](docs/planejamento_logico.pdf)).
+
+## Como executar com Docker
+
+**Pré-requisito:** Docker instalado — Docker Desktop no Windows ou no macOS, Docker Engine no Linux.
+Abra o terminal na pasta do projeto e use os comandos abaixo.
+
+**Como construir a imagem:**
+
+```bash
+docker build -t tasktracker .
+```
+
+**Como rodar o container em modo isolado:**
+
+```bash
+docker run -it --rm tasktracker
+```
+
+**Como rodar via orquestração (Recomendado):**
+
+```bash
+docker compose run --rm tasktracker-app
+```
+
+### O que cada parte dos comandos faz
+
+| Trecho | Função |
+|---|---|
+| `-t tasktracker` (no build) | Dá o nome `tasktracker` à imagem criada a partir do `Dockerfile`. |
+| `-it` | `-i` mantém a entrada de dados aberta e `-t` cria um terminal. Sem isso o menu não consegue ler o que você digita. |
+| `--rm` | Apaga o container quando você sai do programa, sem deixar sobras. |
+| `docker compose run` | Lê o `docker-compose.yml`, que já traz `stdin_open: true` e `tty: true` (o equivalente ao `-it`), e constrói a imagem sozinho se ela ainda não existir. |
+
+O `docker compose run` é o recomendado para esta aplicação: o `docker compose up` foi pensado para serviços que rodam em segundo plano e não conecta o teclado ao container, enquanto o `run` liga o seu terminal ao menu interativo.
+
+### Rodar sem Docker (opcional)
+
+Com o Python 3 instalado:
+
+```bash
+python src/main.py
+```
+
+## Decisões técnicas do Dockerfile
+
+| Instrução | Por quê |
+|---|---|
+| `FROM python:3.11-slim` | Imagem oficial e enxuta do Python 3.11: tem só o necessário, então baixa e inicia rápido. |
+| `WORKDIR /app` | Define a pasta de trabalho dentro do container. |
+| `ENV PYTHONUNBUFFERED=1` | Mostra a saída do programa na hora, sem atraso de buffer — importante numa aplicação interativa. |
+| `ENV PYTHONDONTWRITEBYTECODE=1` | Evita gerar arquivos `.pyc` dentro do container. |
+| `COPY src/ /app/src/` | Copia só o código da aplicação. O `.dockerignore` deixa de fora `.git`, `docs` e caches do Python. |
+| Sem `pip install` | O projeto usa apenas a biblioteca padrão do Python, por isso a imagem fica leve e o build é rápido. |
+| `RUN useradd` + `USER appuser` | A aplicação roda com um usuário comum, sem privilégios de administrador (boa prática de segurança). |
+| `CMD ["python", "src/main.py"]` | Comando que abre o menu do TaskTracker quando o container inicia. |
 
 ## Funcionalidades
 
@@ -29,44 +84,32 @@ Cada tarefa recebe um número (#1, #2, #3...) que pode ser usado para concluí-l
 
 ## Tecnologias utilizadas
 
-- **Python 3** — apenas a biblioteca padrão; nenhuma instalação extra é necessária.
-- **Git** e **GitHub** — controle de versão e publicação do projeto.
+- **Python 3.11** — apenas a biblioteca padrão.
+- **Docker** e **Docker Compose** — empacotamento e execução da aplicação em container.
+- **Git** e **GitHub** — versionamento e publicação do projeto.
 
 ## Estrutura do repositório
 
 ```
 tasktracker-projeto/
-├── README.md                    # Este arquivo
-├── .gitignore                   # Arquivos temporários do Python e ambientes virtuais
 ├── docs/
-│   └── planejamento_logico.pdf  # Planejamento lógico entregue na Fase 1
+│   └── planejamento_logico.pdf  # Planejamento lógico da Fase 1 (rastreabilidade)
 ├── src/
 │   ├── main.py                  # Ponto de entrada: loop principal do menu
 │   ├── tarefas.py               # Cadastro, validações, listagem, conclusão e remoção
 │   └── menu.py                  # Exibição do menu e leitura da opção
-└── requirements.txt             # Dependências (nenhuma: só biblioteca padrão)
+├── .dockerignore                # O que fica fora do build da imagem
+├── .gitignore                   # Arquivos temporários do Python e ambientes virtuais
+├── Dockerfile                   # Receita da imagem da aplicação
+├── docker-compose.yml           # Orquestração da execução interativa
+├── requirements.txt             # Dependências (nenhuma: só biblioteca padrão)
+└── README.md                    # Este arquivo
 ```
-
-## Como instalar e executar
-
-1. Instale o **Python 3** pelo site [python.org/downloads](https://www.python.org/downloads/).
-   No Windows, marque a opção **"Add python.exe to PATH"** durante a instalação.
-2. Baixe o projeto: clique no botão verde **Code**, copie a URL e rode:
-   ```
-   git clone <URL-do-repositório>
-   cd tasktracker-projeto
-   ```
-3. Execute a aplicação:
-   ```
-   python src/main.py
-   ```
-   No Windows, se o comando `python` não for reconhecido, use `py src/main.py`.
-
-Não é preciso instalar nada do `requirements.txt`: o projeto usa só a biblioteca padrão do Python.
 
 ## Exemplo de uso
 
 ```
+$ docker compose run --rm tasktracker-app
 ========================================
            TASKTRACKER - MENU
 ========================================
@@ -81,21 +124,21 @@ Escolha uma opção: 1
 --- Cadastro de Nova Tarefa ---
 Título da tarefa:
 Erro: o título não pode ficar vazio. Digite novamente.
-Título da tarefa: Entregar a Fase 2 do Bootcamp
-Descrição da tarefa (opcional): Repositório, Colab e vídeo
+Título da tarefa: Entregar a Fase 3 do Bootcamp
+Descrição da tarefa (opcional): Dockerfile, compose e vídeo
 Prioridade (Alta, Média ou Baixa): Urgente
 Erro: prioridade inválida. Digite Alta, Média ou Baixa.
 Prioridade (Alta, Média ou Baixa): Alta
-Data limite (DD/MM/AAAA): 31/10/2026
+Data limite (DD/MM/AAAA): 31/12/2026
 
-Tarefa #1 'Entregar a Fase 2 do Bootcamp' cadastrada com sucesso!
+Tarefa #1 'Entregar a Fase 3 do Bootcamp' cadastrada com sucesso!
 ```
 
 ## Evolução do projeto
 
 - **Fase 1 — Planejamento lógico:** entendimento do problema, entradas, saídas, regras e algoritmo em português. *(concluída)*
-- **Fase 2 — Versionamento e implementação:** repositório no GitHub e aplicação em Python com as regras de negócio. *(esta etapa)*
-- **Fase 3 — Containerização:** empacotar a aplicação com Docker. *(próxima etapa)*
+- **Fase 2 — Versionamento e implementação:** repositório no GitHub e aplicação em Python com as regras de negócio. *(concluída)*
+- **Fase 3 — Conteinerização e orquestração:** `Dockerfile`, `docker-compose.yml` e documentação para rodar a aplicação do mesmo jeito em qualquer ambiente. *(concluída)*
 
 ## Autor
 
