@@ -5,7 +5,8 @@ Segue a receita lógica e as regras planejadas na Fase 1:
 - o título é obrigatório (vazio ou só espaços é recusado);
 - a prioridade aceita apenas Alta, Média (ou Media) e Baixa;
 - a data limite usa o formato DD/MM/AAAA e não pode ser anterior a hoje;
-- toda tarefa nasce com o status "Pendente".
+- toda tarefa nasce com o status "Pendente";
+- a listagem mostra primeiro Alta, depois Média, depois Baixa, com os totais.
 """
 
 from datetime import date, datetime
@@ -87,15 +88,20 @@ def cadastrar_tarefa():
     print(f"\nTarefa #{tarefa['id']} '{titulo}' cadastrada com sucesso!\n")
 
 
+def posicao_da_prioridade(tarefa):
+    """Usada na ordenação: Alta vem primeiro, depois Média, depois Baixa."""
+    return PRIORIDADES_VALIDAS.index(tarefa["prioridade"])
+
+
 def visualizar_tarefas():
-    """Mostra todas as tarefas cadastradas."""
+    """Mostra as tarefas ordenadas por prioridade e um resumo no final."""
     print("\n--- Lista de Tarefas ---")
 
     if len(lista_tarefas) == 0:
         print("Não existem tarefas cadastradas no momento.\n")
         return
 
-    for tarefa in lista_tarefas:
+    for tarefa in sorted(lista_tarefas, key=posicao_da_prioridade):
         descricao = tarefa["descricao"] if tarefa["descricao"] else "(sem descrição)"
         print(f"\nTarefa #{tarefa['id']}")
         print(f"  Título:      {tarefa['titulo']}")
@@ -103,4 +109,13 @@ def visualizar_tarefas():
         print(f"  Prioridade:  {tarefa['prioridade']}")
         print(f"  Data limite: {tarefa['data_limite']}")
         print(f"  Status:      {tarefa['status']}")
-    print()
+
+    pendentes = 0
+    concluidas = 0
+    for tarefa in lista_tarefas:
+        if tarefa["status"] == "Pendente":
+            pendentes += 1
+        elif tarefa["status"] == "Concluída":
+            concluidas += 1
+
+    print(f"\nTotal: {len(lista_tarefas)} tarefa(s) | Pendentes: {pendentes} | Concluídas: {concluidas}\n")
