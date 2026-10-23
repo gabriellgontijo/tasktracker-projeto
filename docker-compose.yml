@@ -1,0 +1,9 @@
+# Orquestração do TaskTracker.
+# A aplicação é interativa (usa input()), então o container precisa manter
+# a entrada de dados aberta e ter um terminal virtual para o menu funcionar.
+services:
+  tasktracker-app:
+    build: .                         # constrói a imagem a partir do Dockerfile desta pasta
+    container_name: tasktracker-app  # nome do container
+    stdin_open: true                 # mantém a entrada de dados aberta (equivale ao -i)
+    tty: true                        # aloca um terminal virtual (equivale ao -t)
